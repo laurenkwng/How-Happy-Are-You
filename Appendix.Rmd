@@ -1,0 +1,66 @@
+---
+title: "126 Appendix"
+author: "Lauren Wong (9641309)"
+date: "7/7/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Appendix
+```{r results='hide'}
+projdata = read.table("/Users/laurenwong/Downloads/projdata.txt",header=T)
+attach(projdata)
+pairs(happy~gender+workhrs+relationship, main = "Scatterplot Matrix")
+```
+```{r results='hide', size = "tiny"}
+model <- lm(happy~gender+workhrs+relationship)
+summary(model)
+# the fit of the overall model/the overall p-value is 2.2e-16
+```
+
+```{r results='hide'}
+plot(workhrs[gender==0],happy[gender==0],col="red",pch=19, xlab = "Workhours", ylab = "Happiness", main = "Gender vs Workhours")
+abline(lm(happy[gender==0]~workhrs[gender==0]),col="red")
+points(workhrs[gender==1],happy[gender==1],col="blue",pch=19)
+abline(lm(happy[gender==1]~workhrs[gender==1]),col="blue")
+legend("topright",c("male","female"),col=c("red","blue"),pch=c(19,19))
+```
+```{r results='hide'}
+plot(relationship[gender==0],happy[gender==0],col="red", pch = 19, xlab = "Relationship", ylab = "Happiness", main = "Gender vs Relationship")
+abline(lm(happy[gender==0]~relationship[gender==0]),col="red")
+points(relationship[gender==1],happy[gender==1],col="blue",pch=19)
+abline(lm(happy[gender==1]~relationship[gender==1]),col="blue")
+legend("bottomright",c("male","female"),col=c("red","blue"),pch=c(19,19))
+```
+
+```{r results='hide'}
+fit1 <- lm(happy~.,data=projdata)
+summary(fit1)
+fit2 <- lm(happy~.^2,data=projdata) 
+summary(fit2)
+anova(fit1,fit2) #fit2 is better so use full in stepwise regression tests
+null=lm(happy~1,data=projdata) # empty, no predictors - estimates the mean for every variable
+full=lm(happy~.^2,data=projdata) 
+step(null,scope = list(lower=null,upper=full),direction='forward') # looks at all possible predictors (all 2-way interactions) determines out of those, which one makes the biggest improvement in R2 and adds it to the model
+# step 1: relationship is the most important predictor, of the 5 remain, which one makes the biggest improvement so on through AIC
+# adds in order of importance, contribution 
+#step 2: keeps going until it gets to happy ~ gender + relationship + workhours + gender * relationship 
+step(full, direction='backward')
+step(null, scope=list(upper=full),direction='both') 
+```
+
+```{r results='hide'}
+rel = lm(happy~relationship*gender) #Final model = happy ~ g + r + w + g*r
+#constant variance (because graph doesn't fan out)
+#no outliers, no transformations
+plot(fitted(rel), residuals(rel),xlab = "Fitted", ylab = "Residuals", main = "Residuals Plot")
+abline(h=0)
+#normal 
+qqnorm(residuals(rel)) 
+qqline(residuals(rel)) 
+hist(residuals(rel)) 
+```
+
