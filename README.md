@@ -1,4 +1,4 @@
-# How Happy Are you?
+# How Happy Are You?
 
 A Linear Regression Analysis answering the question of: Does a model with more predictors fit the data
 significantly better than a model with less predictors regarding an individual’s happiness?
